@@ -1,0 +1,152 @@
+#!/usr/bin/perl
+
+require "find.pl";
+
+use File::Basename;
+
+sub wanted {
+    if (/^.*\.([ch]xx|cpp|cc|h|[ch]|bld|java|idl|odl|ini|y|py)$/) {
+	$files{$_} = $dir . "/" . $_;
+    }
+};
+
+while($dir = shift) {
+    &find($dir);
+};
+
+print "\n";
+
+$mapVar = 0;
+
+print "(setq spdmethodfiles (list\n";
+foreach $fname (keys %files) {
+    $ARG = $files{$fname};
+
+    $t = $ARG;
+    $t =~ s/\\/\\\\/g;
+
+    print "  (list \"" . $fname . "\" \"" . $t . "\")\n";
+
+    $fil = "(nth 1 (nth " . $mapVar . " spdmethodfiles))";
+    $mapVar = $mapVar + 1;
+
+    if ($ARG =~ /^.*\.(py)$/) {  # python files
+	open(ARG, $ARG) || warn "Couldn't open $ARG";
+
+        $cls = basename($ARG, ".py");
+
+        @scopes = ();
+        @prefs = ();
+
+        $pref = "";
+
+        $defs{$cls} = $fil . '  ""';
+
+        $novar = "false";
+ 
+	while (<ARG>) {
+	    chop;
+
+            $_ =~ s///g;
+
+	    if (/^\s*(#|$)/) {
+	    } else {
+                if (@prefs) {
+                    if ($_ !~ /^$pref\s/) {
+                        $cls = pop (@scopes);
+                        $pref = pop (@prefs);
+                        $novar = "false";
+                    }
+                } 
+
+		if (/^(\s*)class\s+([A-Za-z0-9_]+)(\(|:)/) {
+                    push(@scopes, $cls);
+                    push(@prefs, $pref);
+                    $pref = $1;
+                    $cls = $2;
+		    $defs{$2} = $fil . '  "'. $_ . '"';
+                    $novar = "false";
+		} else {
+		    if(/^\s*def\s*([A-Za-z0-9_]*)\s*(\(|:)/) {
+                        $meth = $1;
+		        $_ =~ s/\\/\\\\/g;
+		        $_ =~ s/"/\\"/g;
+		        $classes{$cls} .= "\t\t" . '(list "' . $meth . '" ' . $fil . '  "' . $_ . '")' . "\n";
+		        $meths{$meth} = '(list "' . $meth . '" "'. $_ .' ")' . "\n";
+                        $novar = "true";
+	     	    } else {
+                        if ($novar eq "false") {
+                            # variables suck...
+                            if(/^\s*([A-Za-z0-9_]+)\s*=/) {
+                                $meth = $1;
+                                $_ =~ s/\\/\\\\/g;
+                                $_ =~ s/"/\\"/g;
+                                $meths{$meth} = '(list "' . $meth . '" "'. $_ .' ")' . "\n";
+                                $classes{$cls} .= "\t\t" . '(list "' . $meth . '" ' . $fil . '  "' . $_ . '")' . "\n";
+                            }
+                        }
+                    }
+                }
+	    }
+	    
+	}
+	close(ARG);
+    }
+    if ($ARG =~ /^.*\.([ch]xx|c|cc|h)$/) {  # cxx and hxx files
+	open(ARG, $ARG) || warn "Couldn't open $ARG";
+
+	while (<ARG>) {
+	    chop;
+
+            $_ =~ s///g;
+
+	    if (/^.*\\$/) {
+
+	    } else {
+		if (/^class\s+([A-Za-z0-9_]+)/) {
+#	    $defs{$1} = $fil . ' (regexp-quote "'. $_ . '")';
+		    $defs{$1} = $fil . '  "'. $_ . '"';
+#                    print "Found " . $defs{$1} . "\n";
+		} else {
+		    if(/^[A-Za-z0-9]+.*\s\**([A-Z][A-Za-z0-9_]*)::([A-Za-z0-9_]+)\s*\(/) {
+			$_ =~ s/\\/\\\\/g;
+			$_ =~ s/"/\\"/g;
+#	        $classes{$1} .= "\t\t" . '(list "' . $2 . '" ' . $fil . ' (regexp-quote "' . $_ . '"))' . "\n";
+			$classes{$1} .= "\t\t" . '(list "' . $2 . '" ' . $fil . ' "' . $_ . '")' . "\n";
+			$meths{$2} = '(list "' . $2 . '" "'. $_ .' ")' . "\n";
+#                        print "Found class " . $classes{$1} . " and method " . $meths{$2} . "\n";
+		    } else {
+			if(/^([A-Z][A-Za-z0-9_]*)::([A-Za-z0-9_]+)\s*\(/) {
+#		    $classes{$1} .= "\t\t" . '(list "' . $2 . '" ' . $fil . ' (regexp-quote "' . $_ . '"))' . "\n";
+			    $_ =~ s/\\/\\\\/g;
+			    $_ =~ s/"/\\"/g;
+			    $classes{$1} .= "\t\t" . '(list "' . $2 . '" ' . $fil . '  "' . $_ . '")' . "\n";
+			    $meths{$2} = '(list "' . $2 . '" "'. $_ .' ")' . "\n";
+#                        print "Found class " . $classes{$1} . " and method " . $meths{$2} . "\n";
+			}
+		    }
+		}
+	    }
+	    
+	}
+	close(ARG);
+    }
+}
+print "))\n";
+print "\n";
+
+print "(setq spdbit-o-list (list\n";
+foreach $class (keys %classes) {
+    if ($defs{$class} eq '') {
+	$defs{$class} = "nil nil";
+    }
+    print "  (list ", '"', $class, '" ' , $defs{$class}, "\n\t(list\n", $classes{$class}, "))\n\n";
+}
+print "  ))\n";
+
+print "(setq method-list (list\n";
+foreach $method (keys %meths) {
+    print "\t", $meths{$method};
+}
+print "  ))\n";
+ 
