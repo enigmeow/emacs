@@ -11,7 +11,7 @@
   (message "Initializing method list...")
   (let (ptr bits)
     (setq bits (sort (mapcar 'car
-      (apply 'append (mapcar '(lambda(x) (nth 3 x)) spdtags-list))) 'string<))
+      (apply 'append (mapcar #'(lambda(x) (nth 3 x)) spdtags-list))) 'string<))
     (setq ptr bits)
     (while (cdr ptr)
       (if (string= (car ptr) (car (cdr ptr))) 
@@ -54,8 +54,8 @@
   (list 
    (setq spdcurrent-method meth)
    (if (= (length (setq magic_list (apply 'append 
-      (mapcar '(lambda(x) (if (car x) (list x) nil))
-        (mapcar '(lambda(x) 
+      (mapcar #'(lambda(x) (if (car x) (list x) nil))
+        (mapcar #'(lambda(x) 
 	  (list (if (assoc spdcurrent-method (nth 3 x)) (nth 0 x) nil))) 
 	    spdtags-list))))) 1) 
        (car (car magic_list))
@@ -104,7 +104,7 @@
     (load file)
 ;    (load-file file)
     (setq new_critter (list (list 
-      file (mapcar '(lambda(x) (list (car (cdr x)))) spdbit-o-list))))
+      file (mapcar #'(lambda(x) (list (car (cdr x)))) spdbit-o-list))))
   
     (if spdtag-file-names
 	(rplacd new_critter spdtag-file-names))
@@ -129,7 +129,7 @@
 	(progn
 	  (setq spdtags-list 
 		(apply 'nconc 
-		    (mapcar '(lambda(x) (if (assoc (car (cdr x)) files) nil (list x))) spdtags-list)
+		    (mapcar #'(lambda(x) (if (assoc (car (cdr x)) files) nil (list x))) spdtags-list)
                 )
           )
 	  (spdinitialize-methods)
@@ -162,7 +162,7 @@
   (interactive)
 )
 
- (add-hook 'python-mode-hook 
-    '(lambda ()
-       (define-key python-mode-map "(" 'spddescribe-word)
- ))
+; (add-hook 'python-mode-hook 
+;    '(lambda ()
+;       (define-key python-mode-map "(" 'spddescribe-word)
+; ))

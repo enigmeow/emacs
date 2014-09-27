@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 
-require "find.pl";
-
+use File::Find;
 use File::Basename;
 
 sub wanted {
@@ -11,7 +10,11 @@ sub wanted {
 };
 
 while($dir = shift) {
-    &find($dir);
+    find({wanted => sub {
+        if (/^.*\.([ch]xx|cpp|cc|h|[ch]|bld|java|idl|odl|ini|y|py)$/) {
+            $files{basename($_)} =  $_;
+        }
+          }, no_chdir => 1}, $dir);
 };
 
 print "\n";
@@ -20,9 +23,9 @@ $mapVar = 0;
 
 print "(setq spdmethodfiles (list\n";
 foreach $fname (keys %files) {
-    $ARG = $files{$fname};
+    $FIL = $files{$fname};
 
-    $t = $ARG;
+    $t = $FIL;
     $t =~ s/\\/\\\\/g;
 
     print "  (list \"" . $fname . "\" \"" . $t . "\")\n";
@@ -30,10 +33,10 @@ foreach $fname (keys %files) {
     $fil = "(nth 1 (nth " . $mapVar . " spdmethodfiles))";
     $mapVar = $mapVar + 1;
 
-    if ($ARG =~ /^.*\.(py)$/) {  # python files
-	open(ARG, $ARG) || warn "Couldn't open $ARG";
+    if ($FIL =~ /^.*\.(py)$/) {  # python files
+	open(ARG, $FIL) || warn "Couldn't open $FIL";
 
-        $cls = basename($ARG, ".py");
+        $cls = basename($FIL, ".py");
 
         @scopes = ();
         @prefs = ();
@@ -92,8 +95,8 @@ foreach $fname (keys %files) {
 	}
 	close(ARG);
     }
-    if ($ARG =~ /^.*\.([ch]xx|c|cc|h)$/) {  # cxx and hxx files
-	open(ARG, $ARG) || warn "Couldn't open $ARG";
+    if ($FIL =~ /^.*\.([ch]xx|c|cc|h)$/) {  # cxx and hxx files
+	open(ARG, $FIL) || warn "Couldn't open $FIL";
 
 	while (<ARG>) {
 	    chop;
