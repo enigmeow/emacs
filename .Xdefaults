@@ -1,0 +1,33 @@
+XTerm*font:		10x20
+XTerm*saveLines:        3000
+XTerm*scrollBar:        true
+XTerm*reverseWrap:	true
+XTerm*waitForMap:	true
+XTerm*background:	black
+XTerm*foreground:	white
+XTerm*pointerColor:	yellow
+XTerm*pointerShape:	xterm
+XTerm*pointerColorBackground:	blue
+XTerm*cursorColor:	coral
+XTerm*geometry:		80x42
+
+XLoad*foreground:	#30b090
+XLoad*background:	#104030
+XLoad*geometry:         120x120-1-1
+XLoad*update:           3
+
+XClock*foreground:	#30b090
+XClock*background:	#104030
+XClock*geometry:        120x120-131-1
+
+Emacs*Background:       black
+Emacs*Dialog*background:        brown
+Emacs*Dialog*foreground:        white
+Emacs*Foreground:       white
+Emacs*popup*Background: brown
+Emacs*popup*Foreground: white
+Emacs.default.attributeBackground:      black
+Emacs.default.attributeForeground:      white
+Emacs*pointerColor:	yellow
+Emacs*pointerShape:	xterm
+Emacs*pointerColorBackground:	blue
