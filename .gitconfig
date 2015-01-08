@@ -1,0 +1,11 @@
+[user]
+	email = jsiegel@stormbirds.org
+	name = Josh Siegel
+[credential]
+	helper = store
+
+[push]
+	default = current
+
+[branch]
+	autosetuprebase = always
