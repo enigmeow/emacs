@@ -2,12 +2,10 @@
 (setq transient-mark-mode t)
 (setq compilation-skip-threshold 1)
 
-(defconst myemacsdir (concat (getenv "STORMBIRDS") "/other/emacs/jsiegel"))
-
 (setq load-path 
       (append (list 
-        (concat (getenv "STORMBIRDS") "/other/emacs/jsiegel") 
-        (concat (getenv "STORMBIRDS") "/other/emacs/asiegel")) 
+        "/home/jsiegel/repos/emacs"
+        ) 
               load-path))
 
 (load "josh-emacs")
