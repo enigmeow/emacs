@@ -4,6 +4,7 @@
 
 (setq load-path 
       (append (list 
+        "/Users/camrynsagemisch/repos/emacs"
         "/home/jsiegel/repos/emacs"
         ) 
               load-path))

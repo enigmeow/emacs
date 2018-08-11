@@ -183,12 +183,6 @@
   (set-face-foreground 'highlight "white" frame)
   (set-face-background 'highlight "blue" frame)
 
-  (set-face-foreground 'show-paren-match-face "red" frame)
-  (set-face-background 'show-paren-match-face "blue" frame)
-
-  (set-face-foreground 'show-paren-mismatch-face "yellow" frame)
-  (set-face-background 'show-paren-mismatch-face' "violet" frame)
-
   (set-face-foreground 'font-lock-keyword-face "cyan" frame)
   (set-face-background 'font-lock-keyword-face "black" frame)
 
